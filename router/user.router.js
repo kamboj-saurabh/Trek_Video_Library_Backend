@@ -1,11 +1,16 @@
+require('dotenv').config()
 const express = require('express')
 const {extend} = require('lodash')
 const {User} = require('../models/user.model.js')
+const {authenticateToken} = require('../utils/authenticateToken.js')
 
 const router = express.Router()
 
-router.param('userId', async (req, res, next, userId)=>{
+router.use('/details', authenticateToken )
+
+router.use('/details', async (req, res, next)=>{
   try{
+    let {userId} = req
     let user = await User.findById(userId)
 
     if(!user){
@@ -20,7 +25,7 @@ router.param('userId', async (req, res, next, userId)=>{
   }
 })
 
-router.route('/:userId')
+router.route('/details')
 .get(async(req, res)=>{
   const {user} = req;
   res.status(200).json({success:true, data: user})

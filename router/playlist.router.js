@@ -1,12 +1,16 @@
+require('dotenv').config()
 const express = require('express')
 const {extend} = require('lodash')
-// const {User} = require('../models/user.model.js')
 const {Playlist} = require('../models/playlist.model.js')
+const {authenticateToken} = require('../utils/authenticateToken.js')
 
 const router = express.Router()
 
-router.param('userId', async (req, res, next, userId)=>{
+router.use('/users', authenticateToken)
+
+router.use('/users', async (req, res, next)=>{
   try{
+    let {userId} = req 
     let playlist = await Playlist.findOne({__userId: userId})
 
     if(!playlist){
@@ -22,7 +26,7 @@ router.param('userId', async (req, res, next, userId)=>{
   }
 })
 
-router.route('/:userId')
+router.route('/users')
 .get(async (req, res)=>{
   let {playlist} = req
   res.status(200).json({success:true, data: playlist})

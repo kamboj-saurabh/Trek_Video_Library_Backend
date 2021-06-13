@@ -1,10 +1,15 @@
+require('dotenv').config()
 const express = require('express')
 const {LikedVideo} = require('../models/likedVideo.model.js')
+const {authenticateToken} = require('../utils/authenticateToken.js')
 
 const router = express.Router()
 
-router.param('userId', async (req, res, next, userId)=>{
+router.use('/users', authenticateToken)
+
+router.use('/users', async (req, res, next)=>{
   try{
+    let {userId} = req 
     let likedVideos = await LikedVideo.findOne({__userId: userId})
 
     if(!likedVideos){
@@ -21,7 +26,7 @@ router.param('userId', async (req, res, next, userId)=>{
 })
 
 
-router.route('/:userId')
+router.route('/users')
 .get(async (req, res)=>{
   const {likedVideos} = req
   res.status(200).json({success:true, data: likedVideos })

@@ -1,11 +1,16 @@
+require('dotenv').config()
 const express = require('express')
 const {extend} = require('lodash')
 const {WatchLaterVideo} = require('../models/watchLaterVideo.model.js')
+const {authenticateToken} = require('../utils/authenticateToken.js')
 
 const router = express.Router()
 
-router.param('userId', async (req, res, next, userId)=>{
+router.use('/users', authenticateToken)
+
+router.use('/users', async (req, res, next)=>{
   try{
+    let {userId} = req
     let watchLaterVideos = await WatchLaterVideo.findOne({__userId: userId})
 
     if(!watchLaterVideos){
@@ -22,7 +27,7 @@ router.param('userId', async (req, res, next, userId)=>{
 })
 
 
-router.route('/:userId')
+router.route('/users')
 .get(async (req, res)=>{
   const {watchLaterVideos} = req
   res.status(200).json({success:true, data: watchLaterVideos })
